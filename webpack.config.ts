@@ -3,32 +3,44 @@ import * as webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import StatoscopePlugin from '@statoscope/webpack-plugin';
 
-// @todo загрузить переводы из файла
-
 const config: webpack.Configuration = {
     mode: 'production',
     entry: {
-        // @todo настроить entry
+        main: './src/pages/root.tsx',
+        secondary: './src/pages/root2.tsx'
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].[contenthash].js',
+        clean: true, // Clean the output directory before emit.
     },
     plugins: [
-        new HtmlWebpackPlugin(),
+        new HtmlWebpackPlugin({
+          template: './src/index.html',
+        }),
         new StatoscopePlugin({
             saveStatsTo: 'stats.json',
             saveOnlyStats: false,
             open: false,
         }),
     ],
-
     resolve: {
-        // @todo настроить resolve
+        extensions: ['.tsx', '.ts', '.js'], // updated with '.tsx'
     },
     module: {
         rules: [
-            // @todo настроить загрузчик
+            {
+                test: /\.tsx?$/, // updated to include '.tsx' files
+                use: [
+                    {
+                        loader: 'ts-loader', // added 'ts-loader'
+                    },
+                    {
+                        loader: path.resolve(__dirname, 'loaders/i18n-loader.cjs'),
+                    },
+                ],
+                exclude: /node_modules/,
+            },
         ],
     },
     resolveLoader: {
