@@ -4,7 +4,6 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import StatoscopePlugin from '@statoscope/webpack-plugin';
 import fs from 'fs';
 
-
 const pagesDir = './src/pages/';
 const entryFiles = fs.readdirSync(path.resolve(__dirname, pagesDir))
   .filter(file => path.extname(file) === '.tsx')
@@ -13,14 +12,16 @@ const entryFiles = fs.readdirSync(path.resolve(__dirname, pagesDir))
     entries[fileName] = path.resolve(__dirname, pagesDir, file);
     return entries;
   }, {});
-  
+
+const i18nData = require('./i18n.json')
+
 const config: webpack.Configuration = {
     mode: 'production',
     entry: entryFiles,
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].[contenthash].js',
-        clean: true, // Clean the output directory before emit.
+        clean: true,
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -33,7 +34,7 @@ const config: webpack.Configuration = {
         }),
     ],
     resolve: {
-        extensions: ['.tsx', '.ts', '.js'], // updated with '.tsx'
+        extensions: ['.tsx', '.ts', '.js'], 
     },
     module: {
         rules: [
@@ -45,6 +46,7 @@ const config: webpack.Configuration = {
                     },
                     {
                         loader: path.resolve(__dirname, 'loaders/i18n-loader.cjs'),
+                        options: { i18nData } 
                     },
                 ],
                 exclude: /node_modules/,
@@ -55,6 +57,14 @@ const config: webpack.Configuration = {
         alias: {
             'i18n-loader': path.resolve(__dirname, 'loaders/i18n-loader.cjs'),
         },
+    },
+    optimization: {
+        splitChunks: {
+            chunks: 'all',
+        },
+    },
+    cache: {
+        type: 'filesystem',
     },
 };
 
